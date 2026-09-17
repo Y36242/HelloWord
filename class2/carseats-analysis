@@ -9,9 +9,12 @@ import statsmodels.api as sm
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 
 # ---------- 第 2 步：加载数据集 ----------
-# 从 GitHub 上加载 Carseats 数据集
-url = "https://raw.githubusercontent.com/JWarmenhoven/ISLR-python/master/Notebooks/Data/Carseats.csv"
-df = pd.read_csv(url)
+# # 从 GitHub 上加载 Carseats 数据集
+# url = "https://raw.githubusercontent.com/JWarmenhoven/ISLR-python/master/Notebooks/Data/Carseats.csv"
+# df = pd.read_csv(url)
+
+# 从本地读取 Carseats 数据集
+df = pd.read_csv(r"D:\Python数据分析\HelloWord\class2\Carseats.csv")
 
 print("=" * 60)
 print("数据集基本信息：")
