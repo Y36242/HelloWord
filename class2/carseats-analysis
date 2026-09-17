@@ -1,0 +1,80 @@
+# ============================================
+# Carseats 多元线性回归分析
+# ============================================
+
+# ---------- 第 1 步：导入库 ----------
+import pandas as pd
+import numpy as np
+import statsmodels.api as sm
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+
+# ---------- 第 2 步：加载数据集 ----------
+# 从 GitHub 上加载 Carseats 数据集
+url = "https://raw.githubusercontent.com/JWarmenhoven/ISLR-python/master/Notebooks/Data/Carseats.csv"
+df = pd.read_csv(url)
+
+print("=" * 60)
+print("数据集基本信息：")
+print(df.shape)
+print(df.head())
+print(df.dtypes)
+
+# ---------- 第 3 步：数据预处理 ----------
+# ShelveLoc 是定性变量（Bad / Good / Medium），需要转为哑变量
+# drop_first=True 会自动把第一个类别（Bad）作为基准组
+df_encoded = pd.get_dummies(df, columns=['ShelveLoc'], drop_first=True, dtype=int)
+
+print("\n" + "=" * 60)
+print("编码后的列名：")
+print(df_encoded.columns.tolist())
+
+# ---------- 第 4 步：定义自变量 X 和因变量 y ----------
+X = df_encoded[['Price', 'Income', 'Advertising', 'ShelveLoc_Good', 'ShelveLoc_Medium']]
+y = df_encoded['Sales']
+
+# 给 X 添加常数项（截距）
+X = sm.add_constant(X)
+
+# ---------- 第 5 步：建立 OLS 多元线性回归模型 ----------
+model = sm.OLS(y, X).fit()
+
+print("\n" + "=" * 60)
+print("========== 模型拟合报告 ==========")
+print(model.summary())
+
+# ---------- 第 6 步：计算 VIF ----------
+# 注意：去掉常数项 const 再计算
+X_vif = X.drop(columns=['const'])
+
+vif_data = pd.DataFrame()
+vif_data["变量"] = X_vif.columns
+vif_data["VIF"] = [variance_inflation_factor(X_vif.values, i)
+                   for i in range(X_vif.shape[1])]
+
+print("\n" + "=" * 60)
+print("========== VIF 多重共线性检验 ==========")
+print(vif_data)
+
+# ---------- 第 7 步：自动提取关键结论 ----------
+print("\n" + "=" * 60)
+print("========== 作业问题自动解答 ==========")
+
+# 问题1：基准组
+print("\n【问题1】ShelveLoc 的基准组是：Bad")
+print("理由：pd.get_dummies 使用 drop_first=True，删除了 Bad，只保留了 Good 和 Medium。")
+
+# 问题2：ShelveLoc_Good 系数解读
+coef_good = model.params['ShelveLoc_Good']
+print(f"\n【问题2】ShelveLoc_Good 系数 = {coef_good:.4f}")
+print(f"含义：在 Price、Income、Advertising 不变的情况下，")
+print(f"     货架位置为 Good 的商店，其平均销售额比 Bad 的商店高 {coef_good:.4f} 个单位。")
+
+# 问题3：VIF 结论
+max_vif = vif_data["VIF"].max()
+print(f"\n【问题3】最大 VIF = {max_vif:.4f}")
+if max_vif < 5:
+    print("结论：所有 VIF < 5，不存在多重共线性风险。")
+elif max_vif < 10:
+    print("结论：存在中等程度多重共线性，需关注。")
+else:
+    print("结论：存在严重多重共线性风险，需处理。")
