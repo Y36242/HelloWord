@@ -66,7 +66,7 @@ print("理由：pd.get_dummies 使用 drop_first=True，删除了 Bad，只保�
 coef_good = model.params['ShelveLoc_Good']
 print(f"\n【问题2】ShelveLoc_Good 系数 = {coef_good:.4f}")
 print(f"含义：在 Price、Income、Advertising 不变的情况下，")
-print(f"     货架位置为 Good 的商店，其平均销售额比 Bad 的商店高 {coef_good:.4f} 个单位。")
+print(f"货架位置为 Good 的商店，其平均销售额比 Bad 的商店高 {coef_good:.4f} 个单位。")
 
 # 问题3：VIF 结论
 max_vif = vif_data["VIF"].max()
