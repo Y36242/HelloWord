@@ -1,5 +1,4 @@
-# ============ Boston 房价：Ridge / Lasso / Elastic Net 对比（纯文字展示版） ============
-# 特点：结果只在屏幕上用文字显示 —— 不保存任何表格文件、不画图
+#Boston 房价：Ridge / Lasso / Elastic Net 对比
 import os
 import numpy as np
 import pandas as pd
@@ -13,7 +12,7 @@ print(line)
 print("Boston 房价数据：Ridge / Lasso / Elastic Net 对比")
 print(line)
 
-# ---------- 1. 读取本地数据集（自动定位到本文件所在文件夹，不会找不到文件） ----------
+#读取本地数据集
 current_dir = os.path.dirname(os.path.abspath(__file__))
 raw_df = pd.read_csv(os.path.join(current_dir, "BostonHousing.csv"))
 
@@ -24,17 +23,17 @@ feature_names = X.columns.tolist()
 print(f"数据规模：{X.shape[0]} 个样本，{X.shape[1]} 个特征")
 print(f"特征：{', '.join(feature_names)}")
 
-# ---------- 2. 划分训练集 / 测试集 ----------
+#划分训练集 / 测试集
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 print(f"划分结果：训练集 {X_train.shape[0]} 个样本，测试集 {X_test.shape[0]} 个样本")
 
-# ---------- 3. Z-score 标准化（只在训练集上算均值和方差） ----------
+#Z-score 标准化（只在训练集上算均值和方差）
 scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 print("预处理：已做 Z-score 标准化（每个特征均值为 0、标准差为 1）")
 
-# ---------- 4. 5 折交叉验证挑选最优正则化强度 ----------
+#折交叉验证挑选最优正则化强度
 print("\n正在用 5 折交叉验证挑选最优正则化强度 ...")
 ridge_cv = RidgeCV(alphas=np.logspace(-2, 3, 100), cv=5).fit(X_train_scaled, y_train)
 lasso_cv = LassoCV(alphas=np.logspace(-3, 3, 100), cv=5, max_iter=100000).fit(X_train_scaled, y_train)
@@ -47,7 +46,7 @@ print(f"  Ridge        alpha = {ridge_cv.alpha_:.3f}")
 print(f"  Lasso        alpha = {lasso_cv.alpha_:.4f}")
 print(f"  Elastic Net  alpha = {elastic_cv.alpha_:.4f}   （L1 占比 = {elastic_cv.l1_ratio_:.1f}）")
 
-# ---------- 5. 在测试集上评估，结果直接文字输出 ----------
+#在测试集上评估，结果直接文字输出
 models = [("Ridge", ridge_cv), ("Lasso", lasso_cv), ("Elastic Net", elastic_cv)]
 
 print("\n【测试集表现】")
@@ -62,7 +61,7 @@ for name, model in models:
     rows.append((name, mse, r2, nz))
     print(f"  {name:<13}{mse:>8.2f}{r2:>9.4f}{nz_str:>12}")
 
-# ---------- 6. 结果速览 ----------
+#结果
 best = max(rows, key=lambda r: r[2])
 print("\n【结果】")
 print(f"  精度最高：{best[0]}，测试集 R² = {best[2]:.4f}，MSE = {best[1]:.2f}")
